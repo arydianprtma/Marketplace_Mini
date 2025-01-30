@@ -2,7 +2,21 @@
 session_start();
 include 'includes/db.php';
 
-if (!isset($_SESSION['user_id'])) {
+// Mengatur session_id yang unik setiap kali pengguna login, jika belum ada session_id
+if (!isset($_SESSION['session_id']) && isset($_POST['session_id'])) {
+    $_SESSION['session_id'] = $_POST['session_id'];  // Set session ID per tab
+}
+
+// Mengambil data user berdasarkan session ID
+$user_id = $_SESSION['user_id'] ?? null;
+
+if ($user_id) {
+    $stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $user = $stmt->get_result()->fetch_assoc(); 
+} else {
+    // Jika user_id tidak ada, redirect ke halaman login
     header("Location: login.php");
     exit();
 }
@@ -17,7 +31,7 @@ $offset = ($page - 1) * $limit;
 $search = isset($_GET['search']) ? $conn->real_escape_string($_GET['search']) : '';
 $sort = isset($_GET['sort']) ? $_GET['sort'] : 'newest';
 
-// Base query
+// Base query untuk produk
 $base_query = "
     SELECT p.id, p.name, p.description, p.price, p.image, p.stock, p.created_at,
            u.username AS seller_name, u.profile_picture AS seller_avatar,
@@ -28,14 +42,14 @@ $base_query = "
     WHERE 1=1
 ";
 
-// Add search condition if search term exists
+// Menambahkan kondisi pencarian jika ada search term
 if ($search) {
     $base_query .= " AND (p.name LIKE '%$search%' OR p.description LIKE '%$search%')";
 }
 
 $base_query .= " GROUP BY p.id";
 
-// Add sorting
+// Menambahkan pengurutan berdasarkan pilihan user
 switch ($sort) {
     case 'price_low':
         $base_query .= " ORDER BY p.price ASC";
@@ -52,7 +66,7 @@ switch ($sort) {
         break;
 }
 
-// Get total products for pagination
+// Query untuk menghitung total produk untuk pagination
 $total_query = "SELECT COUNT(DISTINCT p.id) as total FROM products p WHERE 1=1";
 if ($search) {
     $total_query .= " AND (p.name LIKE '%$search%' OR p.description LIKE '%$search%')";
@@ -61,23 +75,24 @@ $total_products_query = $conn->query($total_query);
 $total_products = $total_products_query->fetch_assoc()['total'];
 $total_pages = ceil($total_products / $limit);
 
-// Final query with pagination
+// Final query dengan pagination
 $query = $base_query . " LIMIT $offset, $limit";
 $result = $conn->query($query);
 
-// Get user profile picture
+// Ambil gambar profil user
 $stmt_user = $conn->prepare("SELECT profile_picture FROM users WHERE id = ?");
 $stmt_user->bind_param("i", $_SESSION['user_id']);
 $stmt_user->execute();
-$user = $stmt_user->get_result()->fetch_assoc();
-$profile_picture = $user['profile_picture'] ?? 'default.jpg';
+$user_data = $stmt_user->get_result()->fetch_assoc();
+$profile_picture = $user_data['profile_picture'] ?? 'default.jpg';
 
-// Check if user has approved shop
+// Cek apakah user sudah memiliki toko yang disetujui
 $stmt_seller = $conn->prepare("SELECT * FROM sellers WHERE user_id = ? AND status = 'approved'");
 $stmt_seller->bind_param("i", $_SESSION['user_id']);
 $stmt_seller->execute();
 $seller = $stmt_seller->get_result()->fetch_assoc();
 ?>
+
 
 <!DOCTYPE html>
 <html lang="id">
@@ -88,6 +103,20 @@ $seller = $stmt_seller->get_result()->fetch_assoc();
     <link rel="stylesheet" href="assets/css/index.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .footer {
+            background-color: #f8f9fa;
+            padding: 40px 0;
+            margin-top: 40px;
+        }
+        .social-media a {
+            font-size: 1.2rem;
+            transition: color 0.3s;
+        }
+        .social-media a:hover {
+            color: #0d6efd !important;
+        }
+    </style>
 </head>
 <body>
     <!-- Navbar -->
@@ -135,14 +164,14 @@ $seller = $stmt_seller->get_result()->fetch_assoc();
                             <?php echo htmlspecialchars($_SESSION['username']); ?>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="profile.php">
+                            <li><a class="dropdown-item" href="user/profile.php">
                                 <i class="bi bi-person me-2"></i> Profil
                             </a></li>
                             <li><a class="dropdown-item" href="user/orders.php">
                                 <i class="bi bi-box me-2"></i> Pesanan
                             </a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="user/profile.php">
+                            <li><a class="dropdown-item" href="user/settings.php">
                                 <i class="bi bi-gear me-2"></i> Pengaturan
                             </a></li>
                             <li><a class="dropdown-item text-danger" href="logout.php">
@@ -299,6 +328,40 @@ $seller = $stmt_seller->get_result()->fetch_assoc();
     </div>
 
     <!-- Footer remains the same -->
+      <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5>Tentang Kami</h5>
+                    <p class="text-muted">Market adalah platform marketplace yang menghubungkan penjual dan pembeli dalam transaksi yang aman dan nyaman.</p>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5>Link Cepat</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-muted">Cara Berbelanja</a></li>
+                        <li><a href="#" class="text-muted">Cara Berjualan</a></li>
+                        <li><a href="#" class="text-muted">Kebijakan Privasi</a></li>
+                        <li><a href="#" class="text-muted">Syarat dan Ketentuan</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5>Hubungi Kami</h5>
+                    <ul class="list-unstyled">
+                        <li class="text-muted"><i class="bi bi-envelope me-2"></i> support@modernmarket.com</li>
+                        <li class="text-muted"><i class="bi bi-telephone me-2"></i> (021) 1234-5678</li>
+                        <li class="text-muted"><i class="bi bi-geo-alt me-2"></i> Jakarta, Indonesia</li>
+                    </ul>
+                </div>
+            </div>
+            <hr>
+            <div class="text-center">
+                <p class="mb-0 text-muted">
+                    &copy; <?php echo date('Y'); ?> Modern Market. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

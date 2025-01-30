@@ -276,10 +276,8 @@ unset($_SESSION['active_tab']);
                             <i class="bi bi-receipt me-2"></i> Pesanan
                         </a>
                     </li>
-                    <li class="nav-item">  
-                        <a class="nav-link" href="../index.php" style="color:rgb(255, 0, 0);">  
-                            <i class="bi bi-house me-2"></i> Kembali ke Beranda  
-                        </a>  
+                    <li class="nav-item"> 
+                        <a href="../index.php" class="btn btn-danger mt-3 w-100"><i class="bi bi-box-arrow-right me-2"></i> Kembali ke Beranda </a>
                     </li>  
                 </ul>    
             </div>    
@@ -427,6 +425,47 @@ unset($_SESSION['active_tab']);
             </div>
         </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="footer bg-light mt-5 py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5>Tentang Marketplace</h5>
+                    <p class="text-muted">Marketplace adalah platform jual beli online yang menghubungkan penjual dan pembeli dalam transaksi yang aman dan nyaman.</p>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5>Link Cepat</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="help/how-to-buy.php" class="text-muted">Cara Berbelanja</a></li>
+                        <li><a href="help/how-to-sell.php" class="text-muted">Cara Berjualan</a></li>
+                        <li><a href="help/privacy-policy.php" class="text-muted">Kebijakan Privasi</a></li>
+                        <li><a href="help/terms.php" class="text-muted">Syarat dan Ketentuan</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5>Hubungi Kami</h5>
+                    <ul class="list-unstyled">
+                        <li class="text-muted"><i class="bi bi-envelope me-2"></i> support@marketplace.com</li>
+                        <li class="text-muted"><i class="bi bi-telephone me-2"></i> (021) 1234-5678</li>
+                        <li class="text-muted"><i class="bi bi-geo-alt me-2"></i> Jakarta, Indonesia</li>
+                    </ul>
+                    <div class="social-media mt-3">
+                        <a href="#" class="text-muted me-3"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-muted me-3"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="text-muted me-3"><i class="bi bi-twitter"></i></a>
+                        <a href="#" class="text-muted"><i class="bi bi-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="text-center">
+                <p class="mb-0 text-muted">
+                    &copy; <?php echo date('Y'); ?> Marketplace. Hak Cipta Dilindungi.
+                </p>
+            </div>
+        </div>
+    </footer>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
