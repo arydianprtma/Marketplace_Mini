@@ -278,7 +278,7 @@ unset($_SESSION['cart_message']);
                                 <li><a class="dropdown-item" href="cart.php">  
                                     <i class="bi bi-cart me-2"></i> Keranjang  
                                 </a></li>  
-                                <li><a class="dropdown-item" href="orders.php">  
+                                <li><a class="dropdown-item" href="user/orders.php">  
                                     <i class="bi bi-list-check me-2"></i> Pesanan  
                                 </a></li>  
                                 <li><a class="dropdown-item" href="user/settings.php">  

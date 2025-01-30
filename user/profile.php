@@ -277,7 +277,7 @@ unset($_SESSION['active_tab']);
                         </a>
                     </li>
                     <li class="nav-item">  
-                        <a class="nav-link" href="../index.php">  
+                        <a class="nav-link" href="../index.php" style="color:rgb(255, 0, 0);">  
                             <i class="bi bi-house me-2"></i> Kembali ke Beranda  
                         </a>  
                     </li>  

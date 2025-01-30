@@ -190,7 +190,7 @@
                 Maaf, sepertinya halaman yang Anda cari telah dipindahkan atau tidak ada.
                 Mari kembali ke halaman beranda dan mulai dari awal.
             </p>
-            <a href="/" class="home-button" role="button">
+            <a href="index.php" class="home-button" role="button">
                 Kembali ke Beranda
                 <span class="visually-hidden">(kembali ke halaman utama)</span>
             </a>

@@ -21,7 +21,7 @@ $store_description = isset($data['shop_description']) ? htmlspecialchars($data['
 $store_logo = isset($data['shop_logo']) ? htmlspecialchars($data['shop_logo'], ENT_QUOTES, 'UTF-8') : '';  
   
 // Ambil foto profil dari session  
-$user_profile_picture = isset($_SESSION['profile_picture']) ? $_SESSION['profile_picture'] : 'default_profile.png';  
+$user_profile_picture = isset($_SESSION['shop_logos']) ? $_SESSION['shop_logos'] : 'default_profile.png';  
 ?>  
   
 <!DOCTYPE html>  
@@ -92,7 +92,7 @@ $user_profile_picture = isset($_SESSION['profile_picture']) ? $_SESSION['profile
                 <ul class="navbar-nav">  
                     <li class="nav-item dropdown">  
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">  
-                            <img src="../uploads/<?php echo $store_logo; ?>" alt="Foto Profil" class="profile-picture"> <?php echo $_SESSION['username']; ?>  
+                            <img src="../uploads/shop_logos/<?php echo $store_logo; ?>" alt="Foto Profil" class="profile-picture"> <?php echo $_SESSION['username']; ?>  
                         </a>  
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">  
                             <li><a class="dropdown-item" href="profile.php"><i class="bi bi-person"></i> Profil</a></li>  
@@ -115,7 +115,7 @@ $user_profile_picture = isset($_SESSION['profile_picture']) ? $_SESSION['profile
             <div class="card shadow-sm">  
                 <div class="card-body text-center">  
                     <?php if (!empty($store_logo)): ?>  
-                        <img src="../uploads/<?php echo $store_logo; ?>" alt="Logo Toko" class="shop-logo">  
+                        <img src="../uploads/shop_logos/<?php echo $store_logo; ?>" alt="Logo Toko" class="shop-logo">  
                     <?php endif; ?>  
                     <h2 class="card-title mb-3"><?php echo $store_name; ?></h2>  
                     <p class="card-text text-muted mb-4"><?php echo $store_description; ?></p>  

@@ -176,8 +176,8 @@ $profile_picture = $user['profile_picture'] ?? 'default.jpg'; // Gunakan default
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">    
                                 <li><a class="dropdown-item" href="user/profile.php"><i class="bi bi-person"></i> Profil</a></li>    
                                 <li><a class="dropdown-item" href="cart.php"><i class="bi bi-cart"></i> Keranjang</a></li>    
-                                <li><a class="dropdown-item" href="orders.php"><i class="bi bi-receipt"></i> Pesanan</a></li>    
-                                <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i> Pengaturan</a></li>    
+                                <li><a class="dropdown-item" href="user/orders.php"><i class="bi bi-list-check me-2"></i> Pesanan</a></li>    
+                                <li><a class="dropdown-item" href="user/settings.php"><i class="bi bi-gear"></i> Pengaturan</a></li>    
                                 <li><hr class="dropdown-divider"></li>    
                                 <li><a class="dropdown-item text-danger" href="logout.php"><i class="bi bi-box-arrow-right"></i> Logout</a></li>    
                             </ul>    
