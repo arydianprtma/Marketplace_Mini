@@ -42,6 +42,11 @@ $user_profile_picture = isset($_SESSION['shop_logos']) ? $_SESSION['shop_logos']
             --light-color: #ecf0f1;  
         }  
   
+        .navbar {  
+            background-color: white !important;  
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);  
+        }  
+
         .shop-logo {  
             max-width: 200px;  
             max-height: 200px;  
@@ -51,19 +56,17 @@ $user_profile_picture = isset($_SESSION['shop_logos']) ? $_SESSION['shop_logos']
         }  
   
         .profile-picture {  
-            width: 40px;  
-            height: 40px;  
+            width: 30px;  
+            height: 30px;  
             border-radius: 50%;  
             object-fit: cover;  
-            margin-right: 10px;
-        }  
+            margin-right: 10px;  
+        }   
 
-        footer {
-            background-color: var(--light-color);
-            padding: 15px 0;
-            text-align: center;
-            margin-top: 20px;
-        }
+        footer {  
+            background-color: white !important;  
+            box-shadow: 0 -2px 4px rgba(0,0,0,0.1);  
+        }  
     </style>  
 </head>  
 <body>  
@@ -84,7 +87,7 @@ $user_profile_picture = isset($_SESSION['shop_logos']) ? $_SESSION['shop_logos']
                         </a>  
                     </li>  
                     <li class="nav-item">  
-                        <a class="nav-link active" href="#">  
+                        <a class="nav-link active" href="manage_shop.php">  
                             <i class="bi bi-shop-window"></i> Kelola Toko  
                         </a>  
                     </li>  
@@ -140,9 +143,14 @@ $user_profile_picture = isset($_SESSION['shop_logos']) ? $_SESSION['shop_logos']
     </div>  
   
     <!-- Footer -->  
-    <footer>  
-        © <?php echo date('Y'); ?> Marketplace. All Rights Reserved.  
-    </footer>  
+    <!-- Footer -->  
+        <footer class="text-center text-lg-start mt-4">  
+            <div class="container p-4">  
+                <div class="text-center p-3" style="color: var(--dark-color);">  
+                    © <?php echo date('Y'); ?> Marketplace. All Rights Reserved.  
+                </div>  
+            </div>  
+        </footer>   
   
     <!-- Bootstrap JS Bundle with Popper -->  
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>  
