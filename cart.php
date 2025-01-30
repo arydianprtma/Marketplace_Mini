@@ -9,6 +9,13 @@ if (!isset($_SESSION['user_id'])) {
 }  
   
 $user_id = $_SESSION['user_id'];  
+
+// Ambil data foto profil pengguna
+$stmt_user = $conn->prepare("SELECT profile_picture FROM users WHERE id = ?");
+$stmt_user->bind_param("i", $user_id);
+$stmt_user->execute();
+$user = $stmt_user->get_result()->fetch_assoc();
+$profile_picture = $user['profile_picture'] ?? 'default.jpg'; // Gunakan default.jpg jika foto profil tidak ada
   
 // Fungsi untuk menambahkan produk ke keranjang  
 function addToCart($conn, $user_id, $product_id, $quantity) {  
@@ -225,6 +232,14 @@ unset($_SESSION['cart_message']);
             font-size: 1.25rem;  
             font-weight: bold;  
         }  
+
+        .profile-picture {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 10px;
+        }
     </style>  
 </head>  
 <body>  
@@ -254,7 +269,7 @@ unset($_SESSION['cart_message']);
                     <ul class="navbar-nav">  
                         <li class="nav-item dropdown">  
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">  
-                                <i class="bi bi-person-circle me-2"></i> <?php echo $_SESSION['username']; ?>  
+                                <img src="uploads/profile_pictures/<?php echo htmlspecialchars($profile_picture); ?>" alt="Foto Profil" class="profile-picture"> <?php echo $_SESSION['username']; ?>  
                             </a>  
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">  
                                 <li><a class="dropdown-item" href="profile.php">  
@@ -278,7 +293,7 @@ unset($_SESSION['cart_message']);
                     </ul>  
                 </div>  
             </div>  
-        </nav>  
+        </nav>   
   
         <!-- Main Content -->  
         <div class="content container mt-4">  
