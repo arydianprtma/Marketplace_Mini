@@ -98,12 +98,12 @@ $user_profile_picture = isset($_SESSION['shop_logos']) ? $_SESSION['shop_logos']
                             <img src="../uploads/shop_logos/<?php echo $store_logo; ?>" alt="Foto Profil" class="profile-picture"> <?php echo $_SESSION['username']; ?>  
                         </a>  
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">  
-                            <li><a class="dropdown-item" href="profile.php"><i class="bi bi-person"></i> Profil</a></li>  
-                            <li><a class="dropdown-item" href="../cart.php"><i class="bi bi-cart"></i> Keranjang</a></li>  
-                            <li><a class="dropdown-item" href="orders.php"><i class="bi bi-receipt"></i> Pesanan</a></li>  
+                            <li><a class="dropdown-item" href="../user/profile.php"><i class="bi bi-person"></i> Profil</a></li>  
+                            <!-- <li><a class="dropdown-item" href="../cart.php"><i class="bi bi-cart"></i> Keranjang</a></li>  
+                            <li><a class="dropdown-item" href="orders.php"><i class="bi bi-receipt"></i> Pesanan</a></li>   -->
                             <li><a class="dropdown-item" href="../user/settings.php"><i class="bi bi-gear"></i> Pengaturan</a></li>  
                             <li><hr class="dropdown-divider"></li>  
-                            <li><a class="dropdown-item text-danger" href="logout.php"><i class="bi bi-box-arrow-right"></i> Logout</a></li>  
+                            <li><a class="dropdown-item text-danger" href="logout_seller.php"><i class="bi bi-box-arrow-right"></i> Logout</a></li>  
                         </ul>  
                     </li>  
                 </ul>  
