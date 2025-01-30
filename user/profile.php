@@ -97,6 +97,71 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_profile'])) {
     exit();    
 }    
 
+// Proses pengajuan seller
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['apply_seller'])) {
+    $shop_name = $_POST['shop_name'];
+    $phone_number = $_POST['phone_number'];
+    $shop_description = $_POST['shop_description'];
+    $shop_address = $_POST['shop_address'];
+
+    // Validasi input
+    if (empty($shop_name) || empty($phone_number) || empty($shop_description) || empty($shop_address)) {
+        $_SESSION['error_message'] = "Semua field harus diisi!";
+        $_SESSION['seller_form_data'] = $_POST;
+        $_SESSION['active_tab'] = 'seller-application';
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
+    }
+
+    // Proses upload logo toko
+    if (isset($_FILES['shop_logo']) && $_FILES['shop_logo']['error'] == 0) {
+        $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+        if (in_array($_FILES['shop_logo']['type'], $allowed_types)) {
+            $logo_name = $_FILES['shop_logo']['name'];
+            $logo_tmp_name = $_FILES['shop_logo']['tmp_name'];
+            $logo_extension = pathinfo($logo_name, PATHINFO_EXTENSION);
+            $logo_new_name = 'shop_' . $user_id . '.' . $logo_extension;
+            $upload_path = '../uploads/shop_logos/' . $logo_new_name;
+
+            if (move_uploaded_file($logo_tmp_name, $upload_path)) {
+                $shop_logo = $logo_new_name;
+            } else {
+                $_SESSION['error_message'] = "Gagal mengupload logo toko.";
+                $_SESSION['seller_form_data'] = $_POST;
+                $_SESSION['active_tab'] = 'seller-application';
+                header("Location: " . $_SERVER['PHP_SELF']);
+                exit();
+            }
+        } else {
+            $_SESSION['error_message'] = "Format file tidak didukung. Gunakan JPG, PNG, atau GIF.";
+            $_SESSION['seller_form_data'] = $_POST;
+            $_SESSION['active_tab'] = 'seller-application';
+            header("Location: " . $_SERVER['PHP_SELF']);
+            exit();
+        }
+    } else {
+        $_SESSION['error_message'] = "Logo toko harus diunggah.";
+        $_SESSION['seller_form_data'] = $_POST;
+        $_SESSION['active_tab'] = 'seller-application';
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
+    }
+
+    // Insert data seller
+    $stmt = $conn->prepare("INSERT INTO sellers (user_id, shop_name, phone_number, shop_description, shop_address, shop_logo, status) VALUES (?, ?, ?, ?, ?, ?, 'pending')");
+    $stmt->bind_param("isssss", $user_id, $shop_name, $phone_number, $shop_description, $shop_address, $shop_logo);
+
+    if ($stmt->execute()) {
+        $_SESSION['success_message'] = "Pengajuan menjadi seller berhasil dikirim!";
+    } else {
+        $_SESSION['error_message'] = "Gagal mengajukan menjadi seller. Silakan coba lagi.";
+    }
+
+    // Redirect to prevent form resubmission
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
+}
+
 // Query untuk mendapatkan status toko jika user adalah seller
 $seller_status = null;
 $shop_info = null;
@@ -134,12 +199,14 @@ while ($row = $result->fetch_assoc()) {
 $success_message = isset($_SESSION['success_message']) ? $_SESSION['success_message'] : null;    
 $error_message = isset($_SESSION['error_message']) ? $_SESSION['error_message'] : null;    
 $profile_form_data = isset($_SESSION['profile_form_data']) ? $_SESSION['profile_form_data'] : [];    
+$seller_form_data = isset($_SESSION['seller_form_data']) ? $_SESSION['seller_form_data'] : [];
 $active_tab = isset($_SESSION['active_tab']) ? $_SESSION['active_tab'] : 'profile-update';    
     
 // Hapus session setelah digunakan    
 unset($_SESSION['success_message']);    
 unset($_SESSION['error_message']);    
 unset($_SESSION['profile_form_data']);    
+unset($_SESSION['seller_form_data']);    
 unset($_SESSION['active_tab']);    
 ?>    
   
@@ -193,17 +260,22 @@ unset($_SESSION['active_tab']);
             <!-- Sidebar -->    
             <div class="col-md-3 col-lg-2 sidebar">    
                 <h4 class="text-center mb-4">Pengaturan Akun</h4>    
-                <ul class="nav flex-column">    
-                    <li class="nav-item">    
-                        <a class="nav-link <?php echo $active_tab == 'seller-application' ? 'active' : ''; ?>" href="#seller-application" data-bs-toggle="tab">    
-                            <i class="bi bi-shop me-2"></i> Pengajuan Seller    
-                        </a>    
-                    </li>    
+                <ul class="nav flex-column">
                     <li class="nav-item">    
                         <a class="nav-link <?php echo $active_tab == 'profile-update' ? 'active' : ''; ?>" href="#profile-update" data-bs-toggle="tab">    
                             <i class="bi bi-person me-2"></i> Update Profil    
                         </a>    
-                    </li>  
+                    </li>    
+                    <li class="nav-item">    
+                        <a class="nav-link <?php echo $active_tab == 'seller-application' ? 'active' : ''; ?>" href="#seller-application" data-bs-toggle="tab">    
+                            <i class="bi bi-shop me-2"></i> Pengajuan Seller    
+                        </a>    
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo $active_tab == 'order-history' ? 'active' : ''; ?>" href="#order-history" data-bs-toggle="tab">
+                            <i class="bi bi-receipt me-2"></i> Pesanan
+                        </a>
+                    </li>
                     <li class="nav-item">  
                         <a class="nav-link" href="../index.php">  
                             <i class="bi bi-house me-2"></i> Kembali ke Beranda  
@@ -284,6 +356,80 @@ unset($_SESSION['active_tab']);
                                             </div>
                                             <h4 class="mt-3"><?php echo htmlspecialchars($user['username']); ?></h4>
                                             <p class="text-muted">
-                                                Role: <?php echo ucfirst($user['role']); ?> 
+                                                Role: <?php echo ucfirst($user['role']); ?>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <!-- Form Update Profil -->
+                                    <div class="col-md-8">
+                                        <form method="POST" enctype="multipart/form-data">
+                                            <div class="mb-3">
+                                                <label for="username" class="form-label">Username</label>
+                                                <input type="text" class="form-control" id="username" name="username"
+                                                       value="<?php echo htmlspecialchars($profile_form_data['username'] ?? $user['username']); ?>" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="email" class="form-label">Email</label>
+                                                <input type="email" class="form-control" id="email" name="email"
+                                                       value="<?php echo htmlspecialchars($profile_form_data['email'] ?? $user['email']); ?>" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="password" class="form-label">Password (Biarkan kosong jika tidak ingin mengubah)</label>
+                                                <input type="password" class="form-control" id="password" name="password">
+                                            </div>
+                                            <div class="mb-3">
+                                            <label for="profile_picture" class="form-label">Foto Profil</label>
+                                                <input type="file" class="form-control" id="profile_picture" name="profile_picture" accept="image/*">
+                                            </div>
+                                            <button type="submit" name="update_profile" class="btn btn-primary">
+                                                <i class="bi bi-save me-2"></i> Simpan Perubahan
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                                                <!-- Lanjutkan di Claude Ai (Coldown) -->
+                        <!-- Riwayat Pesanan Tab -->
+                        <div class="tab-pane fade" id="order-history">
+                            <div class="content-area">
+                                <h2 class="mb-4">Riwayat Pesanan</h2>
+                                <?php if (empty($orders)): ?>
+                                    <p class="text-muted">Anda belum memiliki pesanan.</p>
+                                <?php else: ?>
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>ID Pesanan</th>
+                                                <th>Nama Produk</th>
+                                                <th>Jumlah</th>
+                                                <th>Harga</th>
+                                                <th>Tanggal</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($orders as $order): ?>
+                                                <tr>
+                                                    <td><?php echo htmlspecialchars($order['id']); ?></td>
+                                                    <td><?php echo htmlspecialchars($order['product_name']); ?></td>
+                                                    <td><?php echo htmlspecialchars($order['quantity']); ?></td>
+                                                    <td><?php echo htmlspecialchars($order['price']); ?></td>
+                                                    <td><?php echo htmlspecialchars(date('d-m-Y', strtotime($order['created_at']))); ?></td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
