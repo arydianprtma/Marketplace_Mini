@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 break;
         }
     }
-    
+
     // Redirect untuk menghindari post resubmission
     header("Location: cart.php");
     exit();
@@ -116,7 +116,7 @@ while ($row = $result->fetch_assoc()) {
         .seller-card {
             background: #fff;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
             margin-bottom: 20px;
         }
 
@@ -195,6 +195,21 @@ while ($row = $result->fetch_assoc()) {
             color: white;
         }
 
+        .select-item {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        #select-all {
+            cursor: pointer;
+        }
+
+        .form-check-label {
+            cursor: pointer;
+            user-select: none;
+        }
+
         .footer {
             background: white;
             padding: 30px 0;
@@ -233,7 +248,7 @@ while ($row = $result->fetch_assoc()) {
                                 <img src="uploads/profile_pictures/<?php echo htmlspecialchars($profile_picture); ?>" alt="Foto Profil" class="profile-picture"> <?php echo $_SESSION['username']; ?>  
                             </a>  
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">  
-                                <li><a class="dropdown-item" href="profile.php">  
+                                <li><a class="dropdown-item" href="../user/profile.php">  
                                     <i class="bi bi-person me-2"></i> Profil  
                                 </a></li>  
                                 <li><a class="dropdown-item" href="cart.php">  
@@ -283,6 +298,7 @@ while ($row = $result->fetch_assoc()) {
             <?php if (!empty($sellers)): ?>
             <div class="row">
                 <!-- Cart Items -->
+                 
                 <div class="col-lg-8">
                     <?php foreach ($sellers as $seller_name => $seller): ?>
                     <div class="seller-card">
@@ -295,6 +311,14 @@ while ($row = $result->fetch_assoc()) {
 
                         <?php foreach ($seller['products'] as $item): ?>
                         <div class="cart-item">
+                            <!-- Tambahkan checkbox -->
+                            <div class="me-3">
+                                <input type="checkbox" 
+                                       class="form-check-input select-item" 
+                                       name="selected_items[]" 
+                                       value="<?php echo $item['product_id']; ?>"
+                                       data-price="<?php echo $item['price'] * $item['quantity']; ?>">
+                            </div>
                             <img src="uploads/product_images/<?php echo htmlspecialchars($item['image']); ?>" 
                                  alt="<?php echo htmlspecialchars($item['name']); ?>" 
                                  class="product-image me-3">
@@ -348,15 +372,18 @@ while ($row = $result->fetch_assoc()) {
                     <div class="card sticky-summary">
                         <div class="card-body">
                             <h5 class="card-title mb-4">Ringkasan Belanja</h5>
-                            
+
                             <div class="d-flex justify-content-between mb-3">
-                                <span>Total Harga</span>
-                                <span class="fw-bold">Rp <?php echo number_format($total_price, 0, ',', '.'); ?></span>
+                                <span>Total Harga (<?php echo '<span id="selected-count">0</span> item'; ?>)</span>
+                                <span class="fw-bold" id="selected-total">Rp 0</span>
                             </div>
 
-                            <a href="checkout.php" class="btn btn-checkout">
-                                Checkout
-                            </a>
+                            <form action="checkout.php" method="POST" id="checkout-form">
+                                <input type="hidden" name="selected_items" id="selected-items-input">
+                                <button type="submit" class="btn btn-checkout" id="checkout-button" disabled>
+                                    Checkout
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -446,6 +473,74 @@ while ($row = $result->fetch_assoc()) {
                 if (!confirm('Apakah Anda yakin ingin menghapus produk ini dari keranjang?')) {
                     e.preventDefault();
                 }
+            });
+        });
+
+        // Tambahkan setelah script yang sudah ada
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkboxes = document.querySelectorAll('.select-item');
+            const selectedTotal = document.getElementById('selected-total');
+            const selectedCount = document.getElementById('selected-count');
+            const checkoutButton = document.getElementById('checkout-button');
+            const checkoutForm = document.getElementById('checkout-form');
+            const selectedItemsInput = document.getElementById('selected-items-input');
+        
+            function updateTotal() {
+                let total = 0;
+                let count = 0;
+                const selectedItems = [];
+            
+                checkboxes.forEach(checkbox => {
+                    if (checkbox.checked) {
+                        total += parseFloat(checkbox.dataset.price);
+                        count++;
+                        selectedItems.push(checkbox.value);
+                    }
+                });
+            
+                // Update UI
+                selectedTotal.textContent = formatRupiah(total);
+                selectedCount.textContent = count;
+
+                // Enable/disable checkout button
+                checkoutButton.disabled = count === 0;
+
+                // Update hidden input with selected items
+                selectedItemsInput.value = JSON.stringify(selectedItems);
+            }
+        
+            // Add event listeners to checkboxes
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', updateTotal);
+            });
+        
+            // Add "Select All" functionality
+            const selectAllCheckbox = document.createElement('input');
+            selectAllCheckbox.type = 'checkbox';
+            selectAllCheckbox.className = 'form-check-input me-2';
+            selectAllCheckbox.id = 'select-all';
+        
+            const selectAllLabel = document.createElement('label');
+            selectAllLabel.className = 'form-check-label';
+            selectAllLabel.htmlFor = 'select-all';
+            selectAllLabel.textContent = 'Pilih Semua';
+        
+            const selectAllContainer = document.createElement('div');
+            selectAllContainer.className = 'mb-3 d-flex align-items-center';
+            selectAllContainer.appendChild(selectAllCheckbox);
+            selectAllContainer.appendChild(selectAllLabel);
+        
+            // Insert "Select All" checkbox before the first seller-card
+            const firstSellerCard = document.querySelector('.seller-card');
+            if (firstSellerCard) {
+                firstSellerCard.parentNode.insertBefore(selectAllContainer, firstSellerCard);
+            }
+        
+            selectAllCheckbox.addEventListener('change', function() {
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+                updateTotal();
             });
         });
     </script>

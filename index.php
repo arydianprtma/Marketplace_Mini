@@ -263,7 +263,7 @@ $seller = $stmt_seller->get_result()->fetch_assoc();
                         </div>
                     </div>
 
-                    <form action="cart.php" method="POST" class="cart-form">
+                    <form action="add_to_cart.php" method="POST" class="cart-form">
                         <input type="hidden" name="product_id" 
                                value="<?php echo htmlspecialchars($product['id']); ?>">
                         <input type="number" name="quantity" 
