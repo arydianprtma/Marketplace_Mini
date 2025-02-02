@@ -225,7 +225,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item text-danger" href="logout_seller.php"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
                         </ul>
-                    </li>
+                    </li> 
                 </ul>
             </div>
         </div>
