@@ -2,9 +2,9 @@
 session_start();
 include 'includes/db.php';
 
-// Mengatur session_id yang unik setiap kali pengguna login, jika belum ada session_id
+// Mengatur session_id yang unik setiap kali pengguna login
 if (!isset($_SESSION['session_id']) && isset($_POST['session_id'])) {
-    $_SESSION['session_id'] = $_POST['session_id'];  // Set session ID per tab
+    $_SESSION['session_id'] = $_POST['session_id'];
 }
 
 // Mengambil data user berdasarkan session ID
@@ -16,26 +16,25 @@ if ($user_id) {
     $stmt->execute();
     $user = $stmt->get_result()->fetch_assoc(); 
 } else {
-    // Jika user_id tidak ada, redirect ke halaman login
     header("Location: login.php");
     exit();
 }
 
-// Pagination setup
+// Pengaturan pagination
 $limit = 12;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $page = max(1, $page);
 $offset = ($page - 1) * $limit;
 
-// Search functionality
+// Fungsi pencarian dan pengurutan
 $search = isset($_GET['search']) ? $conn->real_escape_string($_GET['search']) : '';
 $sort = isset($_GET['sort']) ? $_GET['sort'] : 'newest';
 
-// Base query untuk produk
+// Query dasar untuk produk
 $base_query = "
     SELECT p.id, p.name, p.description, p.price, p.image, p.stock, p.created_at,
            s.shop_name as seller_name,
-           u.profile_picture AS seller_avatar,
+           s.shop_logo as seller_avatar,
            AVG(r.rating) as avg_rating, 
            COUNT(r.id) as review_count
     FROM products p
@@ -45,14 +44,15 @@ $base_query = "
     WHERE 1=1
 ";
 
-// Menambahkan kondisi pencarian jika ada search term
+// Menambahkan kondisi pencarian jika ada
 if ($search) {
-    $base_query .= " AND (p.name LIKE '%$search%' OR p.description LIKE '%$search%')";
+    $base_query .= " AND (p.name LIKE '%" . $search . "%' OR p.description LIKE '%" . $search . "%')";
 }
 
-$base_query .= " GROUP BY p.id, p.name, p.description, p.price, p.image, p.stock, p.created_at, s.shop_name, u.profile_picture";
+// Group by clause yang diperbaiki
+$base_query .= " GROUP BY p.id, p.name, p.description, p.price, p.image, p.stock, p.created_at, s.shop_name, s.shop_logo";
 
-// Menambahkan pengurutan berdasarkan pilihan user
+// Menambahkan pengurutan
 switch ($sort) {
     case 'price_low':
         $base_query .= " ORDER BY p.price ASC";
@@ -69,30 +69,30 @@ switch ($sort) {
         break;
 }
 
-// Query untuk menghitung total produk untuk pagination
+// Query untuk total produk (pagination)
 $total_query = "SELECT COUNT(DISTINCT p.id) as total FROM products p 
                 JOIN users u ON p.seller_id = u.id
                 JOIN sellers s ON u.id = s.user_id AND s.status = 'approved'
                 WHERE 1=1";
 if ($search) {
-    $total_query .= " AND (p.name LIKE '%$search%' OR p.description LIKE '%$search%')";
+    $total_query .= " AND (p.name LIKE '%" . $search . "%' OR p.description LIKE '%" . $search . "%')";
 }
 $total_products_query = $conn->query($total_query);
 $total_products = $total_products_query->fetch_assoc()['total'];
 $total_pages = ceil($total_products / $limit);
 
-// Final query dengan pagination
+// Query final dengan pagination
 $query = $base_query . " LIMIT $offset, $limit";
 $result = $conn->query($query);
 
-// Ambil gambar profil user
+// Mengambil gambar profil user
 $stmt_user = $conn->prepare("SELECT profile_picture FROM users WHERE id = ?");
 $stmt_user->bind_param("i", $_SESSION['user_id']);
 $stmt_user->execute();
 $user_data = $stmt_user->get_result()->fetch_assoc();
 $profile_picture = $user_data['profile_picture'] ?? 'default.jpg';
 
-// Cek apakah user sudah memiliki toko yang disetujui
+// Cek status toko user
 $stmt_seller = $conn->prepare("SELECT * FROM sellers WHERE user_id = ? AND status = 'approved'");
 $stmt_seller->bind_param("i", $_SESSION['user_id']);
 $stmt_seller->execute();
@@ -259,9 +259,10 @@ $seller = $stmt_seller->get_result()->fetch_assoc();
                             Rp <?php echo number_format($product['price'], 0, ',', '.'); ?>
                         </div>
                         <div class="seller-info">
-                            <img src="uploads/shop_logos/<?php echo htmlspecialchars($product['seller_avatar'] ?? 'default.jpg'); ?>" 
-                                 alt="<?php echo htmlspecialchars($product['seller_name']); ?>"
-                                 class="seller-avatar">
+                        <img src="uploads/shop_logos/<?php echo htmlspecialchars($product['seller_avatar'] ? $product['seller_avatar'] : 'default.jpg'); ?>" 
+                                alt="<?php echo htmlspecialchars($product['seller_name']); ?>"
+                                class="seller-avatar"
+                                onerror="this.src='uploads/shop_logos/default.jpg'">
                             <span class="seller-name">
                                 <?php echo htmlspecialchars($product['seller_name']); ?>
                             </span>
