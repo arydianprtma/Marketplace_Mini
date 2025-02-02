@@ -21,7 +21,7 @@ $store_description = isset($data['shop_description']) ? htmlspecialchars($data['
 $store_logo = isset($data['shop_logo']) ? htmlspecialchars($data['shop_logo'], ENT_QUOTES, 'UTF-8') : '';  
   
 // Ambil foto profil dari session  
-$user_profile_picture = isset($_SESSION['shop_logos']) ? $_SESSION['shop_logos'] : 'default_profile.png';  
+$user_profile_picture = isset($_SESSION['profile_pictures']) ? $_SESSION['profile_pictures'] : 'default.png';  
 
 // Ambil data produk
 $products_stmt = $conn->prepare("SELECT * FROM products WHERE seller_id = ? ORDER BY created_at DESC");
@@ -186,7 +186,7 @@ $products_result = $products_stmt->get_result();
                 <ul class="navbar-nav">  
                     <li class="nav-item dropdown">  
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">  
-                            <img src="../uploads/shop_logos/<?php echo $store_logo; ?>" alt="Foto Profil" class="profile-picture"> <?php echo $_SESSION['username']; ?>  
+                            <img src="../uploads/profile_pictures/<?php echo $store_logo; ?>" alt="Foto Profil" class="profile-picture"> <?php echo $_SESSION['username']; ?>  
                         </a>  
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">  
                             <li><a class="dropdown-item" href="../user/profile.php"><i class="bi bi-person"></i> Profil</a></li>  

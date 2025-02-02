@@ -34,10 +34,13 @@ $sort = isset($_GET['sort']) ? $_GET['sort'] : 'newest';
 // Base query untuk produk
 $base_query = "
     SELECT p.id, p.name, p.description, p.price, p.image, p.stock, p.created_at,
-           u.username AS seller_name, u.profile_picture AS seller_avatar,
-           AVG(r.rating) as avg_rating, COUNT(r.id) as review_count
+           s.shop_name as seller_name,
+           u.profile_picture AS seller_avatar,
+           AVG(r.rating) as avg_rating, 
+           COUNT(r.id) as review_count
     FROM products p
     JOIN users u ON p.seller_id = u.id
+    JOIN sellers s ON u.id = s.user_id AND s.status = 'approved'
     LEFT JOIN reviews r ON p.id = r.product_id
     WHERE 1=1
 ";
@@ -47,7 +50,7 @@ if ($search) {
     $base_query .= " AND (p.name LIKE '%$search%' OR p.description LIKE '%$search%')";
 }
 
-$base_query .= " GROUP BY p.id";
+$base_query .= " GROUP BY p.id, p.name, p.description, p.price, p.image, p.stock, p.created_at, s.shop_name, u.profile_picture";
 
 // Menambahkan pengurutan berdasarkan pilihan user
 switch ($sort) {
@@ -67,7 +70,10 @@ switch ($sort) {
 }
 
 // Query untuk menghitung total produk untuk pagination
-$total_query = "SELECT COUNT(DISTINCT p.id) as total FROM products p WHERE 1=1";
+$total_query = "SELECT COUNT(DISTINCT p.id) as total FROM products p 
+                JOIN users u ON p.seller_id = u.id
+                JOIN sellers s ON u.id = s.user_id AND s.status = 'approved'
+                WHERE 1=1";
 if ($search) {
     $total_query .= " AND (p.name LIKE '%$search%' OR p.description LIKE '%$search%')";
 }
@@ -92,7 +98,6 @@ $stmt_seller->bind_param("i", $_SESSION['user_id']);
 $stmt_seller->execute();
 $seller = $stmt_seller->get_result()->fetch_assoc();
 ?>
-
 
 <!DOCTYPE html>
 <html lang="id">
@@ -254,7 +259,7 @@ $seller = $stmt_seller->get_result()->fetch_assoc();
                             Rp <?php echo number_format($product['price'], 0, ',', '.'); ?>
                         </div>
                         <div class="seller-info">
-                            <img src="uploads/profile_pictures/<?php echo htmlspecialchars($product['seller_avatar'] ?? 'default.jpg'); ?>" 
+                            <img src="uploads/shop_logos/<?php echo htmlspecialchars($product['seller_avatar'] ?? 'default.jpg'); ?>" 
                                  alt="<?php echo htmlspecialchars($product['seller_name']); ?>"
                                  class="seller-avatar">
                             <span class="seller-name">
