@@ -248,12 +248,10 @@ while ($row = $result->fetch_assoc()) {
                                 <img src="uploads/profile_pictures/<?php echo htmlspecialchars($profile_picture); ?>" alt="Foto Profil" class="profile-picture"> <?php echo $_SESSION['username']; ?>  
                             </a>  
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">  
-                                <li><a class="dropdown-item" href="../user/profile.php">  
+                                <li><a class="dropdown-item" href="user/profile.php">  
+                                
                                     <i class="bi bi-person me-2"></i> Profil  
-                                </a></li>  
-                                <li><a class="dropdown-item" href="cart.php">  
-                                    <i class="bi bi-cart me-2"></i> Keranjang  
-                                </a></li>  
+                                </a></li> 
                                 <li><a class="dropdown-item" href="user/orders.php">  
                                     <i class="bi bi-list-check me-2"></i> Pesanan  
                                 </a></li>  

@@ -105,6 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <title>Edit Toko</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/index.css">
     <style>
         :root {
             --primary-color: #3498db;
@@ -118,8 +119,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         .navbar {
-            background-color: white !important;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        background: white;
+        box-shadow: 0 2px 15px rgba(52, 152, 219, 0.1);
+        border-bottom: 2px solid rgba(52, 152, 219, 0.1);
+        }
+
+        .navbar-brand {
+            background: var(--primary-color);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent !important;
+            font-weight: 700;
         }
 
         .form-container {
@@ -149,7 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             object-fit: cover;
             border-radius: 10px;
             margin-top: 1rem;
-            border: 2px solid #dee2e6;
+            border: 2px solidrgb(226, 230, 222);
         }
 
         .form-control:focus {
