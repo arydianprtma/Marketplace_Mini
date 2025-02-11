@@ -87,142 +87,90 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        html, body {
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
         body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
+            min-height: 100vh;
             margin: 0;
-            padding: 20px;
         }
         .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
             width: 100%;
             max-width: 400px;
-            padding: 40px;
-            background-color: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
-        .login-header {
+        .login-title {
             text-align: center;
             margin-bottom: 30px;
-        }
-        .login-header h2 {
             color: #333;
-            font-weight: 600;
-            margin-bottom: 10px;
         }
         .form-group {
             margin-bottom: 20px;
             position: relative;
         }
         .form-control {
-            padding: 12px;
-            border-radius: 10px;
-            border: 2px solid #e1e1e1;
-            transition: all 0.3s ease;
             padding-right: 40px;
         }
-        .form-control:focus {
-            border-color: #764ba2;
-            box-shadow: 0 0 0 0.2rem rgba(118,75,162,0.25);
-        }
-        .password-field-container {
-            position: relative;
-            width: 100%;
-        }
-        .password-toggle {
+        .toggle-password {
             position: absolute;
-            right: 12px;
+            right: 10px;
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
             color: #666;
-            z-index: 10;
-            background: transparent;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
-            width: 24px;
-            height: 24px;
         }
         .btn-login {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            border-radius: 10px;
+            background-color: #007bff;
             color: white;
-            font-weight: 600;
-            transition: all 0.3s ease;
+            width: 100%;
+            padding: 10px;
         }
         .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            background-color: #0056b3;
+            color: white;
         }
         .register-link {
             text-align: center;
             margin-top: 20px;
         }
-        .register-link a {
-            color: #764ba2;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        .register-link a:hover {
-            text-decoration: underline;
-        }
-        .alert {
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-        .remember-me {
+        .custom-checkbox {
             display: flex;
             align-items: center;
+            gap: 8px;
             margin-bottom: 15px;
         }
-        .remember-me input[type="checkbox"] {
-            margin-right: 8px;
-        }
-        .custom-checkbox {
-            cursor: pointer;
-            user-select: none;
-            color: #666;
+        .remember-me {
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <div class="login-header">
-            <h2>Welcome Back</h2>
-            <p class="text-muted">Login to your account</p>
-        </div>
-        
-        <?php if (!empty($error)): ?>
-            <div class="alert alert-danger" role="alert">
-                <?php echo $error; ?>
-            </div>
-        <?php endif; ?>
-
-        <form method="POST" action="">
+        <h2 class="login-title">Login</h2>
+        <?php
+        if (isset($_SESSION['error'])) {
+            echo '<div class="alert alert-danger">' . $_SESSION['error'] . '</div>';
+            unset($_SESSION['error']);
+        }
+        if (isset($_SESSION['success'])) {
+            echo '<div class="alert alert-success">' . $_SESSION['success'] . '</div>';
+            unset($_SESSION['success']);
+        }
+        ?>
+        <form action="process_login.php" method="post">
             <div class="form-group">
-                <input type="text" name="username_or_email" class="form-control" placeholder="Username or Email" required>
+                <input type="text" class="form-control" name="email" placeholder="Email" required>
             </div>
             <div class="form-group">
-                <div class="password-field-container">
-                    <input type="password" name="password" class="form-control" id="password" placeholder="Password" required>
-                    <button type="button" class="password-toggle" onclick="togglePassword('password')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                </div>
+                <input type="password" class="form-control" name="password" id="password" placeholder="Password" required>
+                <i class="fas fa-eye toggle-password" onclick="togglePassword('password')"></i>
             </div>
             <div class="remember-me">
                 <label class="custom-checkbox">
@@ -232,26 +180,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <button type="submit" class="btn btn-login">Login</button>
         </form>
-        
         <div class="register-link">
-            <p class="text-muted">
-                Don't have an account? <a href="register.php">Register</a>
-            </p>
+            <p>Don't have an account? <a href="register.php">Register here</a></p>
+            <p><a href="forgot_password.php">Forgot Password?</a></p>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
         function togglePassword(inputId) {
-            const passwordInput = document.getElementById(inputId);
-            const icon = passwordInput.parentElement.querySelector('.password-toggle i');
+            const input = document.getElementById(inputId);
+            const icon = input.nextElementSibling;
             
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
+            if (input.type === 'password') {
+                input.type = 'text';
                 icon.classList.remove('fa-eye');
                 icon.classList.add('fa-eye-slash');
             } else {
-                passwordInput.type = 'password';
+                input.type = 'password';
                 icon.classList.remove('fa-eye-slash');
                 icon.classList.add('fa-eye');
             }
